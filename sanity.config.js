@@ -1,4 +1,4 @@
-// sanity.config.js
+// sanity.config.js - Optimized for deployment
 import { defineConfig } from 'sanity'
 import { deskTool } from 'sanity/desk'
 import { visionTool } from '@sanity/vision'
@@ -10,6 +10,9 @@ export default defineConfig({
   
   projectId: 'v7cam0qp',
   dataset: 'production',
+
+  // Studio configuration for deployment
+  basePath: '/', // The path where studio will be hosted
 
   plugins: [
     deskTool({
@@ -77,6 +80,13 @@ export default defineConfig({
                         S.documentList()
                           .title('AI Chatbot Translations')
                           .filter('_type == "translation" && category == "aiChatbot"')
+                      ),
+                    S.listItem()
+                      .title('FAQ')
+                      .child(
+                        S.documentList()
+                          .title('FAQ Translations')
+                          .filter('_type == "translation" && category == "faq"')
                       )
                   ])
               ),
@@ -133,18 +143,47 @@ export default defineConfig({
               .child(S.documentTypeList('contactInfo'))
           ])
     }),
-    visionTool()
+    // Only include vision tool in development
+    ...(process.env.NODE_ENV === 'development' ? [visionTool()] : [])
   ],
 
   schema: {
     types: schemaTypes,
   },
   
+  // Remove vision tool in production for security
   tools: (prev) => {
-    // If you want to disable the vision tool in production
     if (process.env.NODE_ENV === 'production') {
       return prev.filter((tool) => tool.name !== 'vision')
     }
     return prev
+  },
+
+  // Studio customization for better UX
+  studio: {
+    components: {
+      // Custom logo (optional)
+      logo: () => {
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', fontSize: '1.2rem', fontWeight: 'bold', color: '#f97316' }}>
+            🌞 Purvodaya CMS
+          </div>
+        )
+      }
+    }
+  },
+
+  // Document actions configuration
+  document: {
+    actions: (prev, context) => {
+      // Customize available actions per document type
+      if (context.schemaType === 'translation') {
+        return prev.filter(action => 
+          action.action !== 'delete' || 
+          context.currentUser?.roles?.some(role => role.name === 'administrator')
+        )
+      }
+      return prev
+    }
   }
 })

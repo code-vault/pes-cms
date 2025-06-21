@@ -5,6 +5,8 @@ import galleryProject from './galleryProject'
 import testimonial from './testimonial'
 import videoTestimonial from './videoTestimonial'
 import contactFormStep from './contactFormStep'
+import trustIndicator from './trustIndicator'
+import contactInfo from './contactInfo'
 
 export const schemaTypes = [
   translation,
@@ -12,5 +14,7 @@ export const schemaTypes = [
   galleryProject,
   testimonial,
   videoTestimonial,
-  contactFormStep
+  contactFormStep,
+  trustIndicator,
+  contactInfo
 ]
